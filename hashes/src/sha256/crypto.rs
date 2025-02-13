@@ -559,70 +559,199 @@ impl HashEngine {
         let mut g = self.h[6];
         let mut h = self.h[7];
 
-        for i in (0..16).step_by(8) {
-            round!(a, b, c, d, e, f, g, h, K[i], w[i]);
-            round!(h, a, b, c, d, e, f, g, K[i + 1], w[i + 1]);
-            round!(g, h, a, b, c, d, e, f, K[i + 2], w[i + 2]);
-            round!(f, g, h, a, b, c, d, e, K[i + 3], w[i + 3]);
-            round!(e, f, g, h, a, b, c, d, K[i + 4], w[i + 4]);
-            round!(d, e, f, g, h, a, b, c, K[i + 5], w[i + 5]);
-            round!(c, d, e, f, g, h, a, b, K[i + 6], w[i + 6]);
-            round!(b, c, d, e, f, g, h, a, K[i + 7], w[i + 7]);
+        for i in (0..64).step_by(8) {
+            if i < 16 {
+                round!(a, b, c, d, e, f, g, h, K[i], w[i % 16]);
+                round!(h, a, b, c, d, e, f, g, K[i + 1], w[(i + 1) % 16]);
+                round!(g, h, a, b, c, d, e, f, K[i + 2], w[(i + 2) % 16]);
+                round!(f, g, h, a, b, c, d, e, K[i + 3], w[(i + 3) % 16]);
+                round!(e, f, g, h, a, b, c, d, K[i + 4], w[(i + 4) % 16]);
+                round!(d, e, f, g, h, a, b, c, K[i + 5], w[(i + 5) % 16]);
+                round!(c, d, e, f, g, h, a, b, K[i + 6], w[(i + 6) % 16]);
+                round!(b, c, d, e, f, g, h, a, K[i + 7], w[(i + 7) % 16]);
+            } else {
+                round!(
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    f,
+                    g,
+                    h,
+                    K[i],
+                    w[i % 16],
+                    w[(i - 2) % 16],
+                    w[(i - 7) % 16],
+                    w[(i - 15) % 16]
+                );
+                round!(
+                    h,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    f,
+                    g,
+                    K[i + 1],
+                    w[(i + 1) % 16],
+                    w[(i - 1) % 16],
+                    w[(i - 6) % 16],
+                    w[(i - 14) % 16]
+                );
+                round!(
+                    g,
+                    h,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    f,
+                    K[i + 2],
+                    w[(i + 2) % 16],
+                    w[i % 16],
+                    w[(i - 5) % 16],
+                    w[(i - 13) % 16]
+                );
+                round!(
+                    f,
+                    g,
+                    h,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    K[i + 3],
+                    w[(i + 3) % 16],
+                    w[(i + 1) % 16],
+                    w[(i - 4) % 16],
+                    w[(i - 12) % 16]
+                );
+                round!(
+                    e,
+                    f,
+                    g,
+                    h,
+                    a,
+                    b,
+                    c,
+                    d,
+                    K[i + 4],
+                    w[(i + 4) % 16],
+                    w[(i + 2) % 16],
+                    w[(i - 3) % 16],
+                    w[(i - 11) % 16]
+                );
+                round!(
+                    d,
+                    e,
+                    f,
+                    g,
+                    h,
+                    a,
+                    b,
+                    c,
+                    K[i + 5],
+                    w[(i + 5) % 16],
+                    w[(i + 3) % 16],
+                    w[(i - 2) % 16],
+                    w[(i - 10) % 16]
+                );
+                round!(
+                    c,
+                    d,
+                    e,
+                    f,
+                    g,
+                    h,
+                    a,
+                    b,
+                    K[i + 6],
+                    w[(i + 6) % 16],
+                    w[(i + 4) % 16],
+                    w[(i - 1) % 16],
+                    w[(i - 9) % 16]
+                );
+                round!(
+                    b,
+                    c,
+                    d,
+                    e,
+                    f,
+                    g,
+                    h,
+                    a,
+                    K[i + 7],
+                    w[(i + 7) % 16],
+                    w[(i + 5) % 16],
+                    w[(i - 0) % 16],
+                    w[(i - 8) % 16]
+                );
+            }
         }
 
-        round!(a, b, c, d, e, f, g, h, 0xe49b69c1, w[0], w[14], w[9], w[1]);
-        round!(h, a, b, c, d, e, f, g, 0xefbe4786, w[1], w[15], w[10], w[2]);
-        round!(g, h, a, b, c, d, e, f, 0x0fc19dc6, w[2], w[0], w[11], w[3]);
-        round!(f, g, h, a, b, c, d, e, 0x240ca1cc, w[3], w[1], w[12], w[4]);
-        round!(e, f, g, h, a, b, c, d, 0x2de92c6f, w[4], w[2], w[13], w[5]);
-        round!(d, e, f, g, h, a, b, c, 0x4a7484aa, w[5], w[3], w[14], w[6]);
-        round!(c, d, e, f, g, h, a, b, 0x5cb0a9dc, w[6], w[4], w[15], w[7]);
-        round!(b, c, d, e, f, g, h, a, 0x76f988da, w[7], w[5], w[0], w[8]);
+        // // later rounds we reassign $w before doing the first-round computation
+        // ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $k:expr, $w:expr, $w1:expr, $w2:expr, $w3:expr) => (
+        //     $w = $w.wrapping_add(sigma1($w1)).wrapping_add($w2).wrapping_add(sigma0($w3));
+        //     round!($a, $b, $c, $d, $e, $f, $g, $h, $k, $w);
+        // )
 
-        round!(a, b, c, d, e, f, g, h, 0x983e5152, w[8], w[6], w[1], w[9]);
-        round!(h, a, b, c, d, e, f, g, 0xa831c66d, w[9], w[7], w[2], w[10]);
-        round!(g, h, a, b, c, d, e, f, 0xb00327c8, w[10], w[8], w[3], w[11]);
-        round!(f, g, h, a, b, c, d, e, 0xbf597fc7, w[11], w[9], w[4], w[12]);
-        round!(e, f, g, h, a, b, c, d, 0xc6e00bf3, w[12], w[10], w[5], w[13]);
-        round!(d, e, f, g, h, a, b, c, 0xd5a79147, w[13], w[11], w[6], w[14]);
-        round!(c, d, e, f, g, h, a, b, 0x06ca6351, w[14], w[12], w[7], w[15]);
-        round!(b, c, d, e, f, g, h, a, 0x14292967, w[15], w[13], w[8], w[0]);
+        // round!(a, b, c, d, e, f, g, h, 0xe49b69c1, w[0], w[14], w[9], w[1]);
+        // round!(h, a, b, c, d, e, f, g, 0xefbe4786, w[1], w[15], w[10], w[2]);
+        // round!(g, h, a, b, c, d, e, f, 0x0fc19dc6, w[2], w[0], w[11], w[3]);
+        // round!(f, g, h, a, b, c, d, e, 0x240ca1cc, w[3], w[1], w[12], w[4]);
+        // round!(e, f, g, h, a, b, c, d, 0x2de92c6f, w[4], w[2], w[13], w[5]);
+        // round!(d, e, f, g, h, a, b, c, 0x4a7484aa, w[5], w[3], w[14], w[6]);
+        // round!(c, d, e, f, g, h, a, b, 0x5cb0a9dc, w[6], w[4], w[15], w[7]);
+        // round!(b, c, d, e, f, g, h, a, 0x76f988da, w[7], w[5], w[0], w[8]);
 
-        round!(a, b, c, d, e, f, g, h, 0x27b70a85, w[0], w[14], w[9], w[1]);
-        round!(h, a, b, c, d, e, f, g, 0x2e1b2138, w[1], w[15], w[10], w[2]);
-        round!(g, h, a, b, c, d, e, f, 0x4d2c6dfc, w[2], w[0], w[11], w[3]);
-        round!(f, g, h, a, b, c, d, e, 0x53380d13, w[3], w[1], w[12], w[4]);
-        round!(e, f, g, h, a, b, c, d, 0x650a7354, w[4], w[2], w[13], w[5]);
-        round!(d, e, f, g, h, a, b, c, 0x766a0abb, w[5], w[3], w[14], w[6]);
-        round!(c, d, e, f, g, h, a, b, 0x81c2c92e, w[6], w[4], w[15], w[7]);
-        round!(b, c, d, e, f, g, h, a, 0x92722c85, w[7], w[5], w[0], w[8]);
+        // round!(a, b, c, d, e, f, g, h, 0x983e5152, w[8], w[6], w[1], w[9]);
+        // round!(h, a, b, c, d, e, f, g, 0xa831c66d, w[9], w[7], w[2], w[10]);
+        // round!(g, h, a, b, c, d, e, f, 0xb00327c8, w[10], w[8], w[3], w[11]);
+        // round!(f, g, h, a, b, c, d, e, 0xbf597fc7, w[11], w[9], w[4], w[12]);
+        // round!(e, f, g, h, a, b, c, d, 0xc6e00bf3, w[12], w[10], w[5], w[13]);
+        // round!(d, e, f, g, h, a, b, c, 0xd5a79147, w[13], w[11], w[6], w[14]);
+        // round!(c, d, e, f, g, h, a, b, 0x06ca6351, w[14], w[12], w[7], w[15]);
+        // round!(b, c, d, e, f, g, h, a, 0x14292967, w[15], w[13], w[8], w[0]);
 
-        round!(a, b, c, d, e, f, g, h, 0xa2bfe8a1, w[8], w[6], w[1], w[9]);
-        round!(h, a, b, c, d, e, f, g, 0xa81a664b, w[9], w[7], w[2], w[10]);
-        round!(g, h, a, b, c, d, e, f, 0xc24b8b70, w[10], w[8], w[3], w[11]);
-        round!(f, g, h, a, b, c, d, e, 0xc76c51a3, w[11], w[9], w[4], w[12]);
-        round!(e, f, g, h, a, b, c, d, 0xd192e819, w[12], w[10], w[5], w[13]);
-        round!(d, e, f, g, h, a, b, c, 0xd6990624, w[13], w[11], w[6], w[14]);
-        round!(c, d, e, f, g, h, a, b, 0xf40e3585, w[14], w[12], w[7], w[15]);
-        round!(b, c, d, e, f, g, h, a, 0x106aa070, w[15], w[13], w[8], w[0]);
+        // round!(a, b, c, d, e, f, g, h, 0x27b70a85, w[0], w[14], w[9], w[1]);
+        // round!(h, a, b, c, d, e, f, g, 0x2e1b2138, w[1], w[15], w[10], w[2]);
+        // round!(g, h, a, b, c, d, e, f, 0x4d2c6dfc, w[2], w[0], w[11], w[3]);
+        // round!(f, g, h, a, b, c, d, e, 0x53380d13, w[3], w[1], w[12], w[4]);
+        // round!(e, f, g, h, a, b, c, d, 0x650a7354, w[4], w[2], w[13], w[5]);
+        // round!(d, e, f, g, h, a, b, c, 0x766a0abb, w[5], w[3], w[14], w[6]);
+        // round!(c, d, e, f, g, h, a, b, 0x81c2c92e, w[6], w[4], w[15], w[7]);
+        // round!(b, c, d, e, f, g, h, a, 0x92722c85, w[7], w[5], w[0], w[8]);
 
-        round!(a, b, c, d, e, f, g, h, 0x19a4c116, w[0], w[14], w[9], w[1]);
-        round!(h, a, b, c, d, e, f, g, 0x1e376c08, w[1], w[15], w[10], w[2]);
-        round!(g, h, a, b, c, d, e, f, 0x2748774c, w[2], w[0], w[11], w[3]);
-        round!(f, g, h, a, b, c, d, e, 0x34b0bcb5, w[3], w[1], w[12], w[4]);
-        round!(e, f, g, h, a, b, c, d, 0x391c0cb3, w[4], w[2], w[13], w[5]);
-        round!(d, e, f, g, h, a, b, c, 0x4ed8aa4a, w[5], w[3], w[14], w[6]);
-        round!(c, d, e, f, g, h, a, b, 0x5b9cca4f, w[6], w[4], w[15], w[7]);
-        round!(b, c, d, e, f, g, h, a, 0x682e6ff3, w[7], w[5], w[0], w[8]);
+        // round!(a, b, c, d, e, f, g, h, 0xa2bfe8a1, w[8], w[6], w[1], w[9]);
+        // round!(h, a, b, c, d, e, f, g, 0xa81a664b, w[9], w[7], w[2], w[10]);
+        // round!(g, h, a, b, c, d, e, f, 0xc24b8b70, w[10], w[8], w[3], w[11]);
+        // round!(f, g, h, a, b, c, d, e, 0xc76c51a3, w[11], w[9], w[4], w[12]);
+        // round!(e, f, g, h, a, b, c, d, 0xd192e819, w[12], w[10], w[5], w[13]);
+        // round!(d, e, f, g, h, a, b, c, 0xd6990624, w[13], w[11], w[6], w[14]);
+        // round!(c, d, e, f, g, h, a, b, 0xf40e3585, w[14], w[12], w[7], w[15]);
+        // round!(b, c, d, e, f, g, h, a, 0x106aa070, w[15], w[13], w[8], w[0]);
 
-        round!(a, b, c, d, e, f, g, h, 0x748f82ee, w[8], w[6], w[1], w[9]);
-        round!(h, a, b, c, d, e, f, g, 0x78a5636f, w[9], w[7], w[2], w[10]);
-        round!(g, h, a, b, c, d, e, f, 0x84c87814, w[10], w[8], w[3], w[11]);
-        round!(f, g, h, a, b, c, d, e, 0x8cc70208, w[11], w[9], w[4], w[12]);
-        round!(e, f, g, h, a, b, c, d, 0x90befffa, w[12], w[10], w[5], w[13]);
-        round!(d, e, f, g, h, a, b, c, 0xa4506ceb, w[13], w[11], w[6], w[14]);
-        round!(c, d, e, f, g, h, a, b, 0xbef9a3f7, w[14], w[12], w[7], w[15]);
-        round!(b, c, d, e, f, g, h, a, 0xc67178f2, w[15], w[13], w[8], w[0]);
+        // round!(a, b, c, d, e, f, g, h, 0x19a4c116, w[0], w[14], w[9], w[1]);
+        // round!(h, a, b, c, d, e, f, g, 0x1e376c08, w[1], w[15], w[10], w[2]);
+        // round!(g, h, a, b, c, d, e, f, 0x2748774c, w[2], w[0], w[11], w[3]);
+        // round!(f, g, h, a, b, c, d, e, 0x34b0bcb5, w[3], w[1], w[12], w[4]);
+        // round!(e, f, g, h, a, b, c, d, 0x391c0cb3, w[4], w[2], w[13], w[5]);
+        // round!(d, e, f, g, h, a, b, c, 0x4ed8aa4a, w[5], w[3], w[14], w[6]);
+        // round!(c, d, e, f, g, h, a, b, 0x5b9cca4f, w[6], w[4], w[15], w[7]);
+        // round!(b, c, d, e, f, g, h, a, 0x682e6ff3, w[7], w[5], w[0], w[8]);
+
+        // round!(a, b, c, d, e, f, g, h, 0x748f82ee, w[8], w[6], w[1], w[9]);
+        // round!(h, a, b, c, d, e, f, g, 0x78a5636f, w[9], w[7], w[2], w[10]);
+        // round!(g, h, a, b, c, d, e, f, 0x84c87814, w[10], w[8], w[3], w[11]);
+        // round!(f, g, h, a, b, c, d, e, 0x8cc70208, w[11], w[9], w[4], w[12]);
+        // round!(e, f, g, h, a, b, c, d, 0x90befffa, w[12], w[10], w[5], w[13]);
+        // round!(d, e, f, g, h, a, b, c, 0xa4506ceb, w[13], w[11], w[6], w[14]);
+        // round!(c, d, e, f, g, h, a, b, 0xbef9a3f7, w[14], w[12], w[7], w[15]);
+        // round!(b, c, d, e, f, g, h, a, 0xc67178f2, w[15], w[13], w[8], w[0]);
 
         self.h[0] = self.h[0].wrapping_add(a);
         self.h[1] = self.h[1].wrapping_add(b);
