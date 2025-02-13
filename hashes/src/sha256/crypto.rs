@@ -8,14 +8,20 @@ use core::arch::x86_64::*;
 use super::{HashEngine, Midstate, BLOCK_SIZE};
 
 #[allow(non_snake_case)]
+#[rustfmt::skip]
 const fn Ch(x: u32, y: u32, z: u32) -> u32 { z ^ (x & (y ^ z)) }
 #[allow(non_snake_case)]
+#[rustfmt::skip]
 const fn Maj(x: u32, y: u32, z: u32) -> u32 { (x & y) | (z & (x | y)) }
 #[allow(non_snake_case)]
+#[rustfmt::skip]
 const fn Sigma0(x: u32) -> u32 { x.rotate_left(30) ^ x.rotate_left(19) ^ x.rotate_left(10) }
 #[allow(non_snake_case)]
+#[rustfmt::skip]
 const fn Sigma1(x: u32) -> u32 { x.rotate_left(26) ^ x.rotate_left(21) ^ x.rotate_left(7) }
+#[rustfmt::skip]
 const fn sigma0(x: u32) -> u32 { x.rotate_left(25) ^ x.rotate_left(14) ^ (x >> 3) }
+#[rustfmt::skip]
 const fn sigma1(x: u32) -> u32 { x.rotate_left(15) ^ x.rotate_left(13) ^ (x >> 10) }
 
 #[cfg(feature = "small-hash")]
@@ -61,6 +67,7 @@ mod small_hash {
 #[cfg(not(feature = "small-hash"))]
 #[macro_use]
 mod fast_hash {
+    // TODO: could we call this full-sized-hash, it's not necessarily fast...
     macro_rules! round(
         // first round
         ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $k:expr, $w:expr) => (
