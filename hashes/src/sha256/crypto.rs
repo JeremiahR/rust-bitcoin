@@ -64,6 +64,24 @@ mod small_hash {
     );
 }
 
+#[inline(always)]
+fn round_norm(
+    a: u32,
+    b: u32,
+    c: u32,
+    d: u32,
+    e: u32,
+    f: u32,
+    g: u32,
+    h: u32,
+    k: u32,
+    w: u32,
+) -> (u32, u32) {
+    let t1 = h.wrapping_add(Sigma1(e)).wrapping_add(Ch(e, f, g)).wrapping_add(k).wrapping_add(w);
+    let t2 = Sigma0(a).wrapping_add(Maj(a, b, c));
+    (d.wrapping_add(t1), t1.wrapping_add(t2)) // d, h
+}
+
 #[cfg(not(feature = "small-hash"))]
 #[macro_use]
 mod fast_hash {
@@ -570,14 +588,23 @@ impl HashEngine {
                         .wrapping_add(sigma0(w[(x + 1) % 16]));
                 }
             }
-            round!(a, b, c, d, e, f, g, h, K[i], w[i % 16]);
-            round!(h, a, b, c, d, e, f, g, K[i + 1], w[(i + 1) % 16]);
-            round!(g, h, a, b, c, d, e, f, K[i + 2], w[(i + 2) % 16]);
-            round!(f, g, h, a, b, c, d, e, K[i + 3], w[(i + 3) % 16]);
-            round!(e, f, g, h, a, b, c, d, K[i + 4], w[(i + 4) % 16]);
-            round!(d, e, f, g, h, a, b, c, K[i + 5], w[(i + 5) % 16]);
-            round!(c, d, e, f, g, h, a, b, K[i + 6], w[(i + 6) % 16]);
-            round!(b, c, d, e, f, g, h, a, K[i + 7], w[(i + 7) % 16]);
+            // IDK how we are going to parallelize this...
+            (d, h) = round_norm(a, b, c, d, e, f, g, h, K[i], w[i % 16]);
+            (c, g) = round_norm(h, a, b, c, d, e, f, g, K[i + 1], w[(i + 1) % 16]);
+            (b, f) = round_norm(g, h, a, b, c, d, e, f, K[i + 2], w[(i + 2) % 16]);
+            (a, e) = round_norm(f, g, h, a, b, c, d, e, K[i + 3], w[(i + 3) % 16]);
+            (h, d) = round_norm(e, f, g, h, a, b, c, d, K[i + 4], w[(i + 4) % 16]);
+            (g, c) = round_norm(d, e, f, g, h, a, b, c, K[i + 5], w[(i + 5) % 16]);
+            (f, b) = round_norm(c, d, e, f, g, h, a, b, K[i + 6], w[(i + 6) % 16]);
+            (e, a) = round_norm(b, c, d, e, f, g, h, a, K[i + 7], w[(i + 7) % 16]);
+
+            // round!(h, a, b, c, d, e, f, g, K[i + 1], w[(i + 1) % 16]);
+            // round!(g, h, a, b, c, d, e, f, K[i + 2], w[(i + 2) % 16]);
+            // round!(f, g, h, a, b, c, d, e, K[i + 3], w[(i + 3) % 16]);
+            // round!(e, f, g, h, a, b, c, d, K[i + 4], w[(i + 4) % 16]);
+            // round!(d, e, f, g, h, a, b, c, K[i + 5], w[(i + 5) % 16]);
+            // round!(c, d, e, f, g, h, a, b, K[i + 6], w[(i + 6) % 16]);
+            // round!(b, c, d, e, f, g, h, a, K[i + 7], w[(i + 7) % 16]);
         }
 
         self.h[0] = self.h[0].wrapping_add(a);
